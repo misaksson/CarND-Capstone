@@ -4,11 +4,13 @@ import time
 import datetime
 import random
 import img_proc
-
+from classifier.yolo import YOLO
 
 class TLClassifier(object):
+    yolo = None
     def __init__(self):
         #TODO load classifier
+        self.yolo = YOLO()
         pass
 
     def get_classification(self, image):
@@ -21,6 +23,10 @@ class TLClassifier(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
+
+        scores, classes = self.yolo.detect_image(image)
+
+        ROS_INFO("%s", "test");
         #ts = time.time()
         #st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S')
         #print('Save image as : ' + st + '.png')
