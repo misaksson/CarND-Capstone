@@ -1,4 +1,5 @@
 import cv2
+import time
 import numpy as np
 from os import listdir
 from os.path import isfile, join
@@ -26,6 +27,11 @@ def detect_light(enhanced_img, thrs):
 
 
 def analyze_image(image):
+    secs = int(time.time() * 10)
+
+    if secs % 20 == 0:
+        print('w')
+        cv2.imwrite('./sim_imgs/img_%d.png' % secs, image);
     b, g, r = cv2.split(image)
     r = normalize_channel(r.astype(float))
     b = normalize_channel(b.astype(float))
