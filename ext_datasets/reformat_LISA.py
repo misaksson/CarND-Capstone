@@ -8,9 +8,9 @@ import cv2
 
 def category(c):
     return {
-     "go": 0,
-     "stop": 1,
-     "warning": 2
+     "go": 1,
+     "stop": 0,
+     "warning": 1
     }.get(c, 3)
 
 
