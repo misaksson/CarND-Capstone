@@ -7,7 +7,7 @@ Run a YOLO_v3 style detection model on test images.
 import colorsys
 import os
 from timeit import default_timer as timer
-
+import tensorflow as tf
 import numpy as np
 from keras import backend as K
 from keras.models import load_model
@@ -33,6 +33,7 @@ class YOLO(object):
         self.sess = K.get_session()
         self.model_image_size = (416, 416) # fixed size or (None, None), hw
         self.boxes, self.scores, self.classes = self.generate()
+        self.graph = tf.get_default_graph()
 
     def _get_class(self):
         classes_path = os.path.expanduser(self.classes_path)
@@ -91,7 +92,7 @@ class YOLO(object):
 
     def detect_image(self, image):
         start = timer()
-
+        
         if self.model_image_size != (None, None):
             assert self.model_image_size[0]%32 == 0, 'Multiples of 32 required'
             assert self.model_image_size[1]%32 == 0, 'Multiples of 32 required'
@@ -102,17 +103,17 @@ class YOLO(object):
             boxed_image = letterbox_image(image, new_image_size)
         image_data = np.array(boxed_image, dtype='float32')
 
-        print(image_data.shape)
+        #print(image_data.shape)
         image_data /= 255.
         image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
-
-        out_boxes, out_scores, out_classes = self.sess.run(
-            [self.boxes, self.scores, self.classes],
-            feed_dict={
-                self.yolo_model.input: image_data,
-                self.input_image_shape: [image.size[1], image.size[0]],
-                K.learning_phase(): 0
-            })
+        with self.graph.as_default():
+            out_boxes, out_scores, out_classes = self.sess.run(
+                [self.boxes, self.scores, self.classes],
+                feed_dict={
+                    self.yolo_model.input: image_data,
+                    self.input_image_shape: [image.shape[1], image.shape[0]],
+                    K.learning_phase(): 1
+                })
 
         print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
 

@@ -26,7 +26,7 @@ class TLClassifier(object):
 
         scores, classes = self.yolo.detect_image(image)
 
-        ROS_INFO("%s", "test");
+        #ROS_INFO("%s", "test");
         #ts = time.time()
         #st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S')
         #print('Save image as : ' + st + '.png')
