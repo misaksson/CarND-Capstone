@@ -33,7 +33,7 @@ def create_boxes(origin, file_n, points):
         x = float(c[0])/size_x
         y = float(c[1])/size_y
         width = float(c[2]-c[0])/size_x
-        height = float(c[3]-c[1])/size_x
+        height = float(c[3]-c[1])/size_y
         category = c[4]
         if category == 3:
             img = cv2.rectangle(img,
