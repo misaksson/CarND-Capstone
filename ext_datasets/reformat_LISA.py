@@ -30,10 +30,10 @@ def create_boxes(origin, file_n, points):
     path = path + str(i)
 
     for c in points:
-        x = float(c[0]/size_x)
-        y = float(c[1]/size_y)
-        width = float((c[2]-c[0])/size_x)
-        height = float((c[3]-c[1])/size_x)
+        x = float(c[0])/size_x
+        y = float(c[1])/size_y
+        width = float(c[2]-c[0])/size_x
+        height = float(c[3]-c[1])/size_x
         category = c[4]
         if category == 3:
             img = cv2.rectangle(img,
