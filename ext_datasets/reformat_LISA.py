@@ -44,6 +44,7 @@ def create_boxes(origin, file_n, points):
             f = open(path + '.txt', "a")
             f.write("%i %f %f %f %f\n" % (category, x, y, width, height))
             f.close()
+    img = cv2.resize(img, (416, 416), interpolation=cv2.INTER_CUBIC)
     cv2.imwrite(path + '.jpg', img)
 
 
