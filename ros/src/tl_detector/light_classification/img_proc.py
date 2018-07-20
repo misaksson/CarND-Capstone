@@ -31,7 +31,8 @@ def analyze_image(image):
 
     if secs % 20 == 0:
         print('w')
-        cv2.imwrite('./sim_imgs/img_%d.png' % secs, image);
+        img = cv2.resize(image, (416, 416), interpolation=cv2.INTER_CUBIC)
+        cv2.imwrite('./sim_imgs/img_%d.jpg' % secs, img);
     b, g, r = cv2.split(image)
     r = normalize_channel(r.astype(float))
     b = normalize_channel(b.astype(float))
