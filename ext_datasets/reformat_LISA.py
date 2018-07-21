@@ -10,7 +10,7 @@ def category(c):
     return {
      "go": 1,
      "stop": 0,
-     "warning": 1
+     "warning": 2
     }.get(c, 3)
 
 
