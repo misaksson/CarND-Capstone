@@ -71,6 +71,7 @@ class TLDetector(object):
             msg (Image): image from car-mounted camera
 
         """
+        start_time = rospy.get_time()
         if None in (self.pose, self.wp_search):
             return
 
@@ -95,6 +96,8 @@ class TLDetector(object):
         else:
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
         self.state_count += 1
+
+        rospy.loginfo("Classification duration=%.3f", rospy.get_time() - start_time)
 
     def get_light_state(self, light):
         """Determines the current color of the traffic light
