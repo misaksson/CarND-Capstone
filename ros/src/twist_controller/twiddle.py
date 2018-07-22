@@ -5,18 +5,15 @@ import numpy as np
 
 class Twiddle(pid.PID):
 
-    def __init__(self, kp, ki, kd,
+    def __init__(self, coeffs,
                  mn=pid.MIN_NUM, mx=pid.MAX_NUM,
-                 dkp=None, dki=None, dkd=None,
+                 delta_coeffs=None,
                  active=False):
-        super(Twiddle, self).__init__(kp, ki, kd, mn, mx)
+        super(Twiddle, self).__init__(coeffs, mn, mx)
 
-        # Tuning delta for each coefficient kp, ki and kd
-        self.delta_coeffs = [dkp if dkp is not None else kp * 0.1,
-                             dki if dki is not None else ki * 0.1,
-                             dkd if dkd is not None else kd * 0.1]
+        # Tuning delta for each coefficient
+        self.delta_coeffs = delta_coeffs if delta_coeffs is not None else [coeff * 0.1 for coeff in coeffs]
         self.coeff_idx = 0
-
         self.active = active
         self.lowest_error = np.inf
         self.tuning_count = 0
@@ -32,14 +29,14 @@ class Twiddle(pid.PID):
         """Calculate the score for the twiddle algorithm
 
         Larger errors are punished more by taking the square.
-        Negative errors, that is when the actual value is above the target value, is punished by an extra factor of 10.
+        Negative errors, that is when the actual value is above the target value, is punished by an extra factor of 2.
         """
         if error > 0.0:
             # Actual value is below target value.
             self.accumulated_error += (error**2.0)
         else:
             # Actual value is above target value.
-            self.accumulated_error += 10.0 * (error**2.0)
+            self.accumulated_error += 2.0 * (error**2.0)
         return super(Twiddle, self).step(error, sample_time)
 
     def set_next_params(self):

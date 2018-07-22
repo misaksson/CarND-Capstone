@@ -23,13 +23,11 @@ class Controller(object):
         self.max_steer_angle = max_steer_angle
 
         self.yaw_controller = YawController(wheel_base, steer_ratio, 0.1, max_lat_accel, max_steer_angle)
-
-        coeffs = [1.0, 0.0, 0.0]  # PID controller coefficients
-        delta = [0.1, 0.01, 0.01]  # Delta values for tuning of PID coefficients, used by Twiddle algorithm.
         # When parameter tuning_active is false, then Twiddle behaves just like a PID controller.
-        self.throttle_controller = Twiddle(kp=coeffs[0], ki=coeffs[1], kd=coeffs[2],
-                                           dkp=delta[0], dki=delta[1], dkd=delta[2],
-                                           mn=0.0, mx=1.0, active=tuning_active)
+        self.throttle_controller = Twiddle(
+            coeffs=[1.2039910434026229, 0.0, -0.0035236404646812065],
+            delta_coeffs=[0.0035204594750199024, 0.0, 0.00014780882941434616],
+            mn=0.0, mx=1.0, active=tuning_active)
         self.vel_lpf = LowPassFilter(tau=0.5, ts=0.02)
         self.last_time = rospy.get_time()
 
@@ -59,7 +57,7 @@ class Controller(object):
             decel = max(vel_error, self.decel_limit)
             brake = abs(decel) * self.vehicle_mass * self.wheel_radius  # Brake torque in Nm
 
-#        rospy.loginfo("actualSpeed=%s, targetSpeed=%s, error=%s", current_vel, linear_vel, vel_error)
+        rospy.loginfo("actualSpeed=%s, targetSpeed=%s, error=%s", current_vel, linear_vel, vel_error)
         return throttle, brake, steering
 
     def set_next_params(self):
