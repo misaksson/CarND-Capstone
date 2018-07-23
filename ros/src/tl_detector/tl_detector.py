@@ -71,6 +71,8 @@ class TLDetector(object):
             msg (Image): image from car-mounted camera
 
         """
+
+
         start_time = rospy.get_time()
         if None in (self.pose, self.wp_search):
             return

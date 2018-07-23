@@ -5,12 +5,16 @@ import datetime
 import random
 import img_proc
 from classifier.yolo import YOLO
+import rospy
+import yaml
+import os
 
 class TLClassifier(object):
     yolo = None
     def __init__(self):
-        #TODO load classifier
-        self.yolo = YOLO()
+        traffic_light_config = rospy.get_param("/traffic_light_config")
+        self.config = yaml.load(traffic_light_config)
+        self.yolo = YOLO(self.config['classification']['model'], self.config['classification']['anchors'], self.config['classification']['classes'])
         pass
 
     def get_classification(self, image):

@@ -22,10 +22,10 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 gpu_num=1
 
 class YOLO(object):
-    def __init__(self):
-        self.model_path = os.getcwd()+'/light_classification/classifier/model_data/yolo.h5' # model path or trained weights path
-        self.anchors_path = os.getcwd()+'/light_classification/classifier/model_data/tiny_yolo_anchors.txt'
-        self.classes_path = os.getcwd()+'/light_classification/classifier/model_data/traffic_light_classes.txt'
+    def __init__(self, model, anchors, classes):
+        self.model_path = os.getcwd()+model
+        self.anchors_path = os.getcwd()+anchors
+        self.classes_path = os.getcwd()+classes
         self.score = 0.3
         self.iou = 0.45
         self.class_names = self._get_class()
