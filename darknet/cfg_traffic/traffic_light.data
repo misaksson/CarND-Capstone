@@ -1,0 +1,5 @@
+classes= 3
+train  = data_traffic/train.txt  
+valid  = data_traffic/test.txt  
+names = cfg_traffic/traffic_light.names  
+backup = backup/
