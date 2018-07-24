@@ -31,9 +31,9 @@ class TLClassifier(object):
         secs = int(time.time() * 10)
         image = cv2.cvtColor(image,cv2.COLOR_BGR2RGB) 
         scores, classes, img = self.yolo.detect_image(image)
-        '''img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB) 
+        img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB) 
         state = self.getState(scores, classes)
-        
+        '''
         font                   = cv2.FONT_HERSHEY_SIMPLEX
         fontScale              = 1
         fontColor              = (255,255,255)
