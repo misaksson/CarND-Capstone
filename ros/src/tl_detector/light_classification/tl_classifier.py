@@ -8,6 +8,7 @@ from classifier.yolo import YOLO
 import rospy
 import yaml
 import os
+import numpy as np
 
 class TLClassifier(object):
     yolo = None
@@ -27,9 +28,22 @@ class TLClassifier(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
-
-        scores, classes = self.yolo.detect_image(image)
+        secs = int(time.time() * 10)
+        scores, classes, img = self.yolo.detect_image(image)
         state = self.getState(scores, classes)
+        font                   = cv2.FONT_HERSHEY_SIMPLEX
+        fontScale              = 1
+        fontColor              = (255,255,255)
+        lineType               = 2
+
+        cv2.putText(img, 'state: {}'.format(state), 
+            (100, 100), 
+            font, 
+            fontScale,
+            fontColor,
+            lineType)
+        secs = int(time.time() * 10)
+        cv2.imwrite('./sim_imgs/img_%d.jpg' % secs, img)
         print(state)
         if state == 0:
             return TrafficLight.RED
@@ -60,29 +74,8 @@ class TLClassifier(object):
         return TrafficLight.UNKNOWN'''
 
     def getState(self, scores, classes):
-        states = []
-        index = 0
         final_state = 3
-        for score in scores:
-            score = score*100
-            if score >= 75:
-                states.append(classes[index])
-            index += 1
-        red = 0
-        green = 0
-        yellow = 0
-        for state in states:
-            if state == 0:
-                red += 1
-            if state == 1:
-                green += 1
-            if state == 2:
-                yellow += 1
-        if red > green and red > yellow:
-            final_state = 0
-        elif green > red and green > yellow:
-            final_state = 1
-        elif yellow > red and yellow > green:
-            final_state = 2
+        if len(classes) > 0:
+            final_state = np.max(classes)
 
         return final_state
