@@ -11,6 +11,7 @@ from waypoint_search import WaypointSearch
 import tf
 import yaml
 import math
+import threading
 
 STATE_COUNT_THRESHOLD = 3
 
@@ -22,8 +23,9 @@ class TLDetector(object):
         self.pose = None
         self.waypoints = None
         self.wp_search = None
-        self.camera_image = None
+        self.cv_image = None
         self.lights = []
+        self.lock = threading.Lock()
 
         rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
@@ -52,7 +54,45 @@ class TLDetector(object):
         self.last_wp = -1
         self.state_count = 0
 
-        rospy.spin()
+        self.rate = rospy.Rate(2)
+        self.waitUntilInit()
+        self.loopForEver()
+
+    def waitUntilInit(self):
+        """Wait until all subscriptions has provided at least one msg."""
+        while not rospy.is_shutdown():
+            if None not in (self.pose, self.wp_search):
+                break
+            self.rate.sleep()
+
+    def loopForEver(self):
+        while not rospy.is_shutdown():
+            with self.lock:
+                if self.cv_image is not None:
+                    start_time = rospy.get_time()
+                    light_wp, state = self.process_traffic_lights()
+
+                    '''
+                    Publish upcoming red lights at camera frequency.
+                    Each predicted state has to occur `STATE_COUNT_THRESHOLD` number
+                    of times till we start using it. Otherwise the previous stable state is
+                    used.
+                    '''
+                    if self.state != state:
+                        self.state_count = 0
+                        self.state = state
+                    elif self.state_count >= STATE_COUNT_THRESHOLD:
+                        self.last_state = self.state
+                        light_wp = light_wp if state == TrafficLight.RED else -1
+                        self.last_wp = light_wp
+                        self.upcoming_red_light_pub.publish(Int32(light_wp))
+                    else:
+                        self.upcoming_red_light_pub.publish(Int32(self.last_wp))
+                    self.state_count += 1
+                    rospy.loginfo("Classification duration=%.3f", rospy.get_time() - start_time)
+                    self.cv_image = None
+
+            self.rate.sleep()
 
     def pose_cb(self, msg):
         self.pose = msg
@@ -73,33 +113,9 @@ class TLDetector(object):
 
         """
 
-        start_time = rospy.get_time()
-        if None in (self.pose, self.wp_search):
-            return
-
-        self.has_image = True
-        self.camera_image = msg
-        light_wp, state = self.process_traffic_lights()
-
-        '''
-        Publish upcoming red lights at camera frequency.
-        Each predicted state has to occur `STATE_COUNT_THRESHOLD` number
-        of times till we start using it. Otherwise the previous stable state is
-        used.
-        '''
-        if self.state != state:
-            self.state_count = 0
-            self.state = state
-        elif self.state_count >= STATE_COUNT_THRESHOLD:
-            self.last_state = self.state
-            light_wp = light_wp if state == TrafficLight.RED else -1
-            self.last_wp = light_wp
-            self.upcoming_red_light_pub.publish(Int32(light_wp))
-        else:
-            self.upcoming_red_light_pub.publish(Int32(self.last_wp))
-        self.state_count += 1
-
-        rospy.loginfo("Classification duration=%.3f", rospy.get_time() - start_time)
+        if self.lock.acquire(False):
+            self.cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+            self.lock.release()
 
     def get_light_state(self, light):
         """Determines the current color of the traffic light
@@ -111,15 +127,8 @@ class TLDetector(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
-        if(not self.has_image):
-            self.prev_light_loc = None
-            return False
-
-        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
-        #cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8")
-
         # Get classification
-        return self.light_classifier.get_classification(cv_image)
+        return self.light_classifier.get_classification(self.cv_image)
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
