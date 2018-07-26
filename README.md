@@ -11,8 +11,6 @@ The System Integration project is the capstone project of the Udacity Self-Drivi
 * Manoj Kumar Subramanian
 * Michael Balda
 
-<img src="imgs/architecture.png"/>
-
 <hr/>
 
 ## Project Setup
