@@ -1,4 +1,16 @@
 
+# Capstone Project - System Integration
+The System Integration project is the capstone project of the Udacity Self-Driving Car Engineer Nanodegree. We have built ROS nodes to implement traffic light detection, control, and waypoint following. This software system will be deployed on Carla to autonomously drive it around a test track.
+
+<img src="imgs/architecture.png"/>
+
+## Team members
+* Markus Isaksson
+* Dhanoop Karunakaran
+* Gaber Ayoubi
+* Manoj Kumar Subramanian
+* Michael Balda
+
 <img src="imgs/architecture.png"/>
 
 <hr/>
