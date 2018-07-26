@@ -11,6 +11,14 @@ The System Integration project is the capstone project of the Udacity Self-Drivi
 * Manoj Kumar Subramanian
 * Michael Balda
 
+## Tasks
+
+### Traffic light detection
+
+### Waypoint updater
+
+### DBW
+
 <hr/>
 
 ## Project Setup
