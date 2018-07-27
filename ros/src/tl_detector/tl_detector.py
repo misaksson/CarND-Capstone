@@ -10,6 +10,7 @@ from light_classification.tl_classifier import TLClassifier
 from waypoint_search import WaypointSearch
 import tf
 import yaml
+import math
 
 STATE_COUNT_THRESHOLD = 3
 
@@ -71,6 +72,8 @@ class TLDetector(object):
             msg (Image): image from car-mounted camera
 
         """
+
+        start_time = rospy.get_time()
         if None in (self.pose, self.wp_search):
             return
 
@@ -96,6 +99,8 @@ class TLDetector(object):
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
         self.state_count += 1
 
+        rospy.loginfo("Classification duration=%.3f", rospy.get_time() - start_time)
+
     def get_light_state(self, light):
         """Determines the current color of the traffic light
 
@@ -111,6 +116,7 @@ class TLDetector(object):
             return False
 
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
+        #cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8")
 
         # Get classification
         return self.light_classifier.get_classification(cv_image)
@@ -125,6 +131,7 @@ class TLDetector(object):
 
         """
         closest_light = None
+        closest_light_idx = -1
         line_wp_idx = None
 
         # List of positions that correspond to the line to stop in front of for a given intersection
@@ -132,7 +139,6 @@ class TLDetector(object):
         car_wp_idx = self.wp_search.get_closest_waypoint_idx_ahead(self.pose.pose.position.x,
                                                                    self.pose.pose.position.y)
 
-        #TODO find the closest visible traffic light (if one exists)
         diff = len(self.waypoints.waypoints)
         for i, light in enumerate(self.lights):
             stop_line_x, stop_line_y = stop_line_positions[i]
@@ -142,13 +148,35 @@ class TLDetector(object):
             if d < diff:
                 diff = d
                 closest_light = light
+                closest_light_idx = i
                 line_wp_idx = temp_wp_idx
 
         if closest_light:
             state = self.get_light_state(closest_light)
+            distance = self.__calc_distance(car_wp_idx, line_wp_idx)
+            if hasattr(closest_light, 'state') and (closest_light.state != state) and (distance < 75.0):
+                rospy.logwarn("Incorrect classification at TL %i: state=%s expected=%s at distance %.1f m",
+                              closest_light_idx, state, closest_light.state, distance)
             return line_wp_idx, state
 
         return -1, TrafficLight.UNKNOWN
+
+    def __calc_distance(self, start_idx, end_idx):
+        """Calculates the distance between two base waypoints"""
+
+        def dl(a, b):
+            return math.sqrt((a.x - b.x)**2 + (a.y - b.y)**2 + (a.z - b.z)**2)
+
+        total_dist = 0
+        num_wps = (end_idx - start_idx) % len(self.waypoints.waypoints)
+        idx1 = start_idx
+        for i in range(num_wps):
+            idx0 = idx1
+            idx1 = (idx0 + 1) % len(self.waypoints.waypoints)
+
+            total_dist += dl(self.waypoints.waypoints[idx0].pose.pose.position,
+                             self.waypoints.waypoints[idx1].pose.pose.position)
+        return total_dist
 
 
 if __name__ == '__main__':

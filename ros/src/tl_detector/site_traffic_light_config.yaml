@@ -5,3 +5,8 @@ camera_info:
   image_height: 600
 stop_line_positions:
     - [8.0, 16.2]
+classification:
+  model: '/light_classification/classifier/model_data/yolo_carla.h5'
+  anchors: '/light_classification/classifier/model_data/tiny_yolo_anchors.txt'
+  classes: '/light_classification/classifier/model_data/traffic_light_classes.txt'
+  is_carla: true

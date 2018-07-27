@@ -10,3 +10,8 @@ stop_line_positions:
     - [821.96, 2905.8]
     - [161.76, 2303.82]
     - [351.84, 1574.65]
+classification:
+  model: '/light_classification/classifier/model_data/yolo_sim.h5'
+  anchors: '/light_classification/classifier/model_data/tiny_yolo_anchors.txt'
+  classes: '/light_classification/classifier/model_data/traffic_light_classes.txt'
+  is_carla: false

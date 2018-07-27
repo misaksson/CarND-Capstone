@@ -4,3 +4,5 @@ build
 devel
 
 profile.tmp
+
+ros/src/tl_detector/sim_imgs/
