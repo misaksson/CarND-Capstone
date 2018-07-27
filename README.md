@@ -5,11 +5,11 @@ The System Integration project is the capstone project of the Udacity Self-Drivi
 <img src="imgs/architecture.png"/>
 
 ## Team members
-* Markus Isaksson
-* Dhanoop Karunakaran
-* Gaber Ayoubi
-* Manoj Kumar Subramanian
-* Michael Balda
+* Markus Isaksson - markus.isaksson@gmail.com
+* Dhanoop Karunakaran - dhanoop.karunakaran@gmail.com
+* Gaber Ayoubi -  gaber.ayoubi@gmail.com
+* Manoj Kumar Subramanian - manojkumar85@gmail.com
+* Michael Balda - michael.balda@gmail.com
 
 ## Tasks
 
